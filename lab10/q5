@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 10005
+
+int parent[MAX], rank[MAX];
+int A[MAX], values[MAX];
+
+int find(int x)
+{
+    if (parent[x] != x)
+        parent[x] = find(parent[x]);
+
+    return parent[x];
+}
+
+void unite(int u, int v)
+{
+    int ru = find(u);
+    int rv = find(v);
+
+    if (ru == rv)
+        return;
+
+    if (rank[ru] < rank[rv])
+        parent[ru] = rv;
+    else if (rank[ru] > rank[rv])
+        parent[rv] = ru;
+    else
+    {
+        parent[rv] = ru;
+        rank[ru]++;
+    }
+}
+
+int compare(const void *a, const void *b)
+{
+    return (*(int *)a - *(int *)b);
+}
+
+int main()
+{
+    int n, m;
+    int u, v;
+
+    scanf("%d %d", &n, &m);
+
+    for (int i = 1; i <= n; i++)
+    {
+        scanf("%d", &A[i]);
+
+        parent[i] = i;
+        rank[i] = 0;
+    }
+
+    for (int i = 0; i < m; i++)
+    {
+        scanf("%d %d", &u, &v);
+        unite(u, v);
+    }
+
+    for (int i = 1; i <= n; i++)
+        values[i] = A[i];
+
+    for (int i = 1; i <= n; i++)
+    {
+        if (parent[i] == i)
+        {
+            int count = 0;
+            int pos[MAX];
+
+            for (int j = 1; j <= n; j++)
+            {
+                if (find(j) == i)
+                    pos[count++] = j;
+            }
+
+            int temp[MAX];
+
+            for (int j = 0; j < count; j++)
+                temp[j] = A[pos[j]];
+
+            qsort(temp, count, sizeof(int), compare);
+
+            for (int j = 0; j < count; j++)
+                A[pos[j]] = temp[j];
+        }
+    }
+
+    for (int i = 1; i <= n; i++)
+        printf("%d ", A[i]);
+
+    printf("\n");
+
+    return 0;
+}
