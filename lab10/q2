@@ -1,0 +1,91 @@
+#include <stdio.h>
+
+#define MAX 10005
+
+int parent[MAX], rank[MAX], active[MAX];
+
+int find(int x)
+{
+    if (parent[x] != x)
+        parent[x] = find(parent[x]);
+
+    return parent[x];
+}
+
+void unite(int u, int v, int *count)
+{
+    int ru = find(u);
+    int rv = find(v);
+
+    if (ru == rv)
+        return;
+
+    if (rank[ru] < rank[rv])
+        parent[ru] = rv;
+    else if (rank[ru] > rank[rv])
+        parent[rv] = ru;
+    else
+    {
+        parent[rv] = ru;
+        rank[ru]++;
+    }
+
+    (*count)--;
+}
+
+int main()
+{
+    int R, C, K;
+    int r, c, count = 0;
+
+    int dr[] = {-1, 1, 0, 0};
+    int dc[] = {0, 0, -1, 1};
+
+    scanf("%d %d %d", &R, &C, &K);
+
+    int total = R * C;
+
+    for (int i = 0; i < total; i++)
+    {
+        parent[i] = i;
+        rank[i] = 0;
+        active[i] = 0;
+    }
+
+    for (int i = 0; i < K; i++)
+    {
+        scanf("%d %d", &r, &c);
+
+        r--;
+        c--;
+
+        int id = r * C + c;
+
+        if (active[id])
+        {
+            printf("%d\n", count);
+            continue;
+        }
+
+        active[id] = 1;
+        count++;
+
+        for (int j = 0; j < 4; j++)
+        {
+            int nr = r + dr[j];
+            int nc = c + dc[j];
+
+            if (nr >= 0 && nr < R && nc >= 0 && nc < C)
+            {
+                int nid = nr * C + nc;
+
+                if (active[nid])
+                    unite(id, nid, &count);
+            }
+        }
+
+        printf("%d\n", count);
+    }
+
+    return 0;
+}
