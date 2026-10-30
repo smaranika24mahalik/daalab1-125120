@@ -1,0 +1,104 @@
+#include <stdio.h>
+
+#define MAX 10005
+
+int parent[MAX], size[MAX], active[MAX];
+
+long long weight[MAX], sum[MAX], ans[MAX];
+
+int find(int x)
+{
+    if (parent[x] != x)
+        parent[x] = find(parent[x]);
+
+    return parent[x];
+}
+
+void unite(int u, int v)
+{
+    int ru = find(u);
+    int rv = find(v);
+
+    if (ru == rv)
+        return;
+
+    if (size[ru] < size[rv])
+    {
+        int temp = ru;
+        ru = rv;
+        rv = temp;
+    }
+
+    parent[rv] = ru;
+    size[ru] += size[rv];
+    sum[ru] += sum[rv];
+}
+
+int main()
+{
+    int n, m;
+    int u, v;
+
+    int edgeU[MAX], edgeV[MAX], p[MAX];
+
+    scanf("%d %d", &n, &m);
+
+    for (int i = 1; i <= n; i++)
+        scanf("%lld", &weight[i]);
+
+    for (int i = 0; i < m; i++)
+        scanf("%d %d", &edgeU[i], &edgeV[i]);
+
+    for (int i = 1; i <= n; i++)
+        scanf("%d", &p[i]);
+
+    for (int i = 1; i <= n; i++)
+    {
+        parent[i] = i;
+        size[i] = 1;
+        active[i] = 0;
+        sum[i] = weight[i];
+    }
+
+    long long maximum = 0;
+
+    for (int i = n; i >= 1; i--)
+    {
+        ans[i] = maximum;
+
+        int x = p[i];
+
+        active[x] = 1;
+
+        if (weight[x] > maximum)
+            maximum = weight[x];
+
+        for (int j = 0; j < m; j++)
+        {
+            u = edgeU[j];
+            v = edgeV[j];
+
+            if ((u == x && active[v]) ||
+                (v == x && active[u]))
+            {
+                unite(u, v);
+            }
+        }
+
+        maximum = 0;
+
+        for (int j = 1; j <= n; j++)
+        {
+            if (active[j] && find(j) == j)
+            {
+                if (sum[j] > maximum)
+                    maximum = sum[j];
+            }
+        }
+    }
+
+    for (int i = 1; i <= n; i++)
+        printf("%lld\n", ans[i]);
+
+    return 0;
+}
